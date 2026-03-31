@@ -1,20 +1,8 @@
 package by.it.group510901.kushnerevich.lesson02;
-/*
-Даны
-1) объем рюкзака 4
-2) число возможных предметов 60
-3) сам набор предметов
-    100 50
-    120 30
-    100 50
-Все это указано в файле (by/it/a_khmelev/lesson02/greedyKnapsack.txt)
-
-Необходимо собрать наиболее дорогой вариант рюкзака для этого объема
-Предметы можно резать на кусочки (т.е. алгоритм будет жадным)
- */
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class C_GreedyKnapsack {
@@ -40,22 +28,36 @@ public class C_GreedyKnapsack {
         }
         System.out.printf("Всего предметов: %d. Рюкзак вмещает %d кг.\n", n, W);
 
-        //тут необходимо реализовать решение задачи
-        //итогом является максимально воможная стоимость вещей в рюкзаке
-        //вещи можно резать на кусочки (непрерывный рюкзак)
+        // Сортируем предметы по убыванию удельной стоимости (cost/weight)
+        Arrays.sort(items, (a, b) -> Double.compare(
+                (double)b.cost / b.weight,
+                (double)a.cost / a.weight
+        ));
+
         double result = 0;
-        //тут реализуйте алгоритм сбора рюкзака
-        //будет особенно хорошо, если с собственной сортировкой
-        //кроме того, можете описать свой компаратор в классе Item
+        int remainingWeight = W;
 
-        //ваше решение.
-
+        // Жадный алгоритм: берем предметы с максимальной удельной стоимостью
+        for (Item item : items) {
+            if (remainingWeight >= item.weight) {
+                // Берем предмет целиком
+                result += item.cost;
+                remainingWeight -= item.weight;
+                System.out.printf("Взяли целиком: %s (осталось места: %d)\n", item, remainingWeight);
+            } else {
+                // Берем часть предмета
+                double fraction = (double) remainingWeight / item.weight;
+                result += item.cost * fraction;
+                System.out.printf("Взяли часть (%.2f) от %s (осталось места: 0)\n", fraction, item);
+                break; // Рюкзак заполнен
+            }
+        }
 
         System.out.printf("Удалось собрать рюкзак на сумму %f\n", result);
         return result;
     }
 
-    private static class Item implements Comparable<Item> {
+    private static class Item {
         int cost;
         int weight;
 
@@ -67,17 +69,10 @@ public class C_GreedyKnapsack {
         @Override
         public String toString() {
             return "Item{" +
-                   "cost=" + cost +
-                   ", weight=" + weight +
-                   '}';
-        }
-
-        @Override
-        public int compareTo(Item o) {
-            //тут может быть ваш компаратор
-
-
-            return 0;
+                    "cost=" + cost +
+                    ", weight=" + weight +
+                    ", valuePerKg=" + String.format("%.2f", (double)cost/weight) +
+                    '}';
         }
     }
 }

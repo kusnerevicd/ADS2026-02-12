@@ -1,13 +1,8 @@
 package by.it.group510901.kushnerevich.lesson02;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-/*
-Даны интервальные события events
-реализуйте метод calcStartTimes, так, чтобы число принятых к выполнению
-непересекающихся событий было максимально.
-Алгоритм жадный. Для реализации обдумайте надежный шаг.
-*/
 
 public class B_Sheduler {
     public static void main(String[] args) {
@@ -20,23 +15,34 @@ public class B_Sheduler {
                 new Event(8, 9), new Event(4, 6), new Event(8, 10), new Event(7, 10)
         };
 
-        List<Event> starts = instance.calcStartTimes(events, 0, 10);  //рассчитаем оптимальное заполнение аудитории
-        System.out.println(starts);                                 //покажем рассчитанный график занятий
+        List<Event> starts = instance.calcStartTimes(events, 0, 10);
+        System.out.println(starts);
     }
 
     List<Event> calcStartTimes(Event[] events, int from, int to) {
-        //в период [from, int] (включительно).
-        //оптимизация проводится по наибольшему числу непересекающихся событий.
-        //Начало и конец событий могут совпадать.
-        List<Event> result;
-        result = new ArrayList<>();
+        List<Event> result = new ArrayList<>();
 
+        // 1. Сортируем события по времени окончания
+        Arrays.sort(events, (e1, e2) -> Integer.compare(e1.stop, e2.stop));
 
+        // 2. Выбираем первое событие, которое начинается не раньше from
+        int currentTime = from;
 
-        return result;          //вернем итог
+        for (Event event : events) {
+            // Если событие начинается раньше текущего времени или заканчивается после to - пропускаем
+            if (event.start < currentTime || event.stop > to) {
+                continue;
+            }
+            // Если событие начинается не раньше текущего времени - выбираем его
+            if (event.start >= currentTime) {
+                result.add(event);
+                currentTime = event.stop; // Обновляем текущее время до окончания выбранного события
+            }
+        }
+
+        return result;
     }
 
-    //событие в аудитории
     static class Event {
         int start;
         int stop;
